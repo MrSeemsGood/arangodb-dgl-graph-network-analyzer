@@ -12,14 +12,7 @@ from random import random, randint, choice
 from numpy.random import normal
 import json
 
-
-NUM_ACCOUNTS = 20               # Число аккаунтов
-
-NUM_HOURS = 48                  # Количество временных отрезков (часов)
-MAX_TX_IN_ONE_HOUR = 30         # Максимальное число транзакций в час
-MIN_TX_IN_ONE_HOUR = 10         # Минимальное число транзакций в час
-
-CREDIT_NEGATIVE_LIMIT = -1000   # Максимальная задолженность для аккаунта типа CREDIT
+from params import *
 
 
 def generate_accounts():
@@ -27,11 +20,15 @@ def generate_accounts():
     Генерация аккаунтов
     '''
     accounts = list()
-    sums = normal(2500, 1000, NUM_ACCOUNTS)
+    sums = normal(
+        INITIAL_BALANCE_MEAN,
+        INITIAL_BALANCE_STD,
+        NUM_ACCOUNTS
+    )
 
     for i in range(NUM_ACCOUNTS):
-        account_type = 'DEBIT' if random() < 0.7 else 'CREDIT'
-        account_creation_dttm = randint(-144, 47)
+        account_type = 'DEBIT' if random() < DEBIT_CHANCE else 'CREDIT'
+        account_creation_dttm = randint(MIN_CREATION_HR, NUM_HOURS)
 
         accounts.append({
             'account_id' : i,
@@ -92,9 +89,9 @@ def generate_transactions():
             sender = choice(created_acc)
 
             tx_type_random = random()
-            if tx_type_random < 0.8:
+            if tx_type_random < TRANSFER_CHANCE:
                 tx_type = 'TRANSFER'
-            elif tx_type_random < 0.9:
+            elif tx_type_random < TRANSFER_CHANCE + CASH_IN_CHANCE:
                 tx_type = 'CASH_IN'
             else:
                 tx_type = 'CASH_OUT'
